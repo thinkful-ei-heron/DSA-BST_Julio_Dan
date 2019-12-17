@@ -153,13 +153,28 @@ function testThirdLargest() {
 //testThirdLargest();
 
 function isBalanced(t) {
-  let lMaxDepth = findHeight(t.left);
-  let rMaxDepth = findHeight(t.right);
+  let lMaxDepth = bstHeight(t.left);
+  let rMaxDepth = bstHeight(t.right);
   console.log('left: ' + lMaxDepth);
   console.log('right: ' + rMaxDepth);
   if (Math.abs(lMaxDepth - rMaxDepth) > 1) return false;
   return true;
 }
+
+//thanks Reif
+const bstHeight = (tree, height = 1) => {
+  if (tree.right == null && tree.left == null) {
+    return height;
+  }
+  if (tree.right && tree.left) {
+    return Math.max(bstHeight(tree.right, height + 1), bstHeight(tree.left, height + 1));
+  } else if (tree.left !== null) {
+    return bstHeight(tree.left, height + 1);
+  } else if (tree.right !== null) {
+    return bstHeight(tree.right, height + 1);
+  }
+  return height;
+};
 
 function testIsBalanced() {
   let ASCI = new BinarySearchTree();
@@ -186,26 +201,36 @@ function testIsBalanced() {
   BST.insert(2);
   BST.insert(5);
   BST.insert(7);
-  // let t = BST.find(7);
-  // t.left = new BinarySearchTree(20, null, t);
+  let t = BST.find(7);
+  t.left = new BinarySearchTree(20, null, t);
+  t.left.left = new BinarySearchTree(18, null, t);
   console.log(isBalanced(BST));
 }
 
-//testIsBalanced();
+testIsBalanced();
 
 function compareBST(arr1, arr2) {
   if (arr1.length !== arr2.length) return false;
   if (arr1[0] !== arr2[0]) return false;
-  let bstAsArr1 = [arr1[0]];
-  let bstAsArr2 = [arr2[0]];
+  let maxSize = 0;
+  for (let i = 0; i < arr1.length; i++) {
+    maxSize += 2 ** i;
+  }
+
+  let bstAsArr1 = new Array(maxSize);
+  let bstAsArr2 = new Array(maxSize);
+  bstAsArr1[0] = arr1[0];
+  bstAsArr2[0] = arr2[0];
 
   for (let i = 1; i < arr1.length; i++) {
     addToTree(bstAsArr1, 0, arr1[i]);
-    addToTree(bstAsArr2, 0, arr1[i]);
+    addToTree(bstAsArr2, 0, arr2[i]);
   }
 
-  console.log(bstAsArr1);
-  console.log(bstAsArr2);
+  for (let i = 0; i < bstAsArr1.length; i++) {
+    if (bstAsArr1[i] !== bstAsArr2[i]) return false;
+  }
+  return true;
 }
 
 function addToTree(t, root, val) {
@@ -228,4 +253,5 @@ function addToTree(t, root, val) {
   return;
 }
 
-compareBST([3, 5, 4, 6, 1, 0, 2], [3, 1, 5, 2, 4, 6, 0]);
+// console.log(compareBST([3, 5, 4, 6, 1, 0, 2], [3, 1, 5, 2, 4, 6, 0]));
+// console.log(compareBST([3, 6, 4, 5, 1, 0, 2], [3, 1, 5, 2, 4, 6, 0]));
